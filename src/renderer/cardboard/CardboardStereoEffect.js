@@ -101,13 +101,13 @@ export default function CardboardStereoEffect(cardboard_view, scene, camera, ove
         // (which gets called from render() function).  Bug?
         renderer.setRenderTarget(readBuffer);
 
-        renderer.setScissor(0, 0, _width, _height);
-        renderer.setViewport(0, 0, _width, _height);
-        renderer.render(scene, _cameraL, readBuffer, this.clear);
+        readBuffer.scissor.set(0, 0, _width, _height);
+        readBuffer.viewport.set(0, 0, _width, _height);
+        renderer.render(scene, _cameraL, readBuffer, true);
 
-        renderer.setScissor(_width, 0, _width, _height);
-        renderer.setViewport(_width, 0, _width, _height);
-        renderer.render(scene, _cameraR, readBuffer, this.clear);
+        readBuffer.scissor.set(_width, 0, _width, _height);
+        readBuffer.viewport.set(_width, 0, _width, _height);
+        renderer.render(scene, _cameraR, readBuffer, false);
 
         renderer.setViewport(0, 0, 2 * _width, _height);
 

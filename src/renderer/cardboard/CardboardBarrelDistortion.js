@@ -48,31 +48,34 @@ export default {
     "varying vec2 vUV;",
 
     "float poly(float val) {",
-      "return (showCenter == 1 && val < 0.00005) ? ",
-      "10000.0 : 1.0 + (distortion.x + distortion.y * val) * val;",
+    "return (showCenter == 1 && val < 0.00005) ? ",
+    "10000.0 : 1.0 + (distortion.x + distortion.y * val) * val;",
     "}",
 
     "vec2 barrel(vec2 v, vec4 projection, vec4 unprojection) {",
-      "vec2 w = (v + unprojection.zw) / unprojection.xy;",
-      "return projection.xy * (poly(dot(w, w)) * w) - projection.zw;",
+    "vec2 w = (v + unprojection.zw) / unprojection.xy;",
+    "return projection.xy * (poly(dot(w, w)) * w) - projection.zw;",
     "}",
 
     "void main() {",
-      // right projections are shifted and vertically mirrored relative to left
-      "vec4 projectionRight = (projectionLeft + vec4(0.0, 0.0, 1.0, 0.0)) * vec4(1.0, 1.0, -1.0, 1.0);",
-      "vec4 unprojectionRight = (unprojectionLeft + vec4(0.0, 0.0, 1.0, 0.0)) * vec4(1.0, 1.0, -1.0, 1.0);",
-      "vec2 a = (vUV.x < 0.5) ? ",
-      "barrel(vec2(vUV.x / 0.5, vUV.y), projectionLeft, unprojectionLeft) : ",
-      "barrel(vec2((vUV.x - 0.5) / 0.5, vUV.y), projectionRight, unprojectionRight);",
+    // right projections are shifted and vertically mirrored relative to left
+    "vec4 projectionRight = ",
+    "(projectionLeft + vec4(0.0, 0.0, 1.0, 0.0)) * vec4(1.0, 1.0, -1.0, 1.0);",
+    "vec4 unprojectionRight = ",
+    "(unprojectionLeft + vec4(0.0, 0.0, 1.0, 0.0)) * vec4(1.0, 1.0, -1.0, 1.0);",
 
-      "if (dividerColor.w > 0.0 && abs(vUV.x - 0.5) < .001) {",
-        "gl_FragColor = dividerColor;",
-      "} else if (a.x < 0.0 || a.x > 1.0 || a.y < 0.0 || a.y > 1.0) {",
-        "gl_FragColor = backgroundColor;",
-      "} else {",
-        "gl_FragColor = texture2D(tDiffuse, vec2(a.x * 0.5 + (vUV.x < 0.5 ? 0.0 : 0.5), a.y));",
-      "}",
+    "vec2 a = (vUV.x < 0.5) ? ",
+    "barrel(vec2(vUV.x / 0.5, vUV.y), projectionLeft, unprojectionLeft) : ",
+    "barrel(vec2((vUV.x - 0.5) / 0.5, vUV.y), projectionRight, unprojectionRight);",
+
+    "if (dividerColor.w > 0.0 && abs(vUV.x - 0.5) < .001) {",
+    "gl_FragColor = dividerColor;",
+    "} else if (a.x < 0.0 || a.x > 1.0 || a.y < 0.0 || a.y > 1.0) {",
+    "gl_FragColor = backgroundColor;",
+    "} else {",
+    "gl_FragColor = texture2D(tDiffuse, vec2(a.x * 0.5 + (vUV.x < 0.5 ? 0.0 : 0.5), a.y));",
+    "}",
     "}"
 
-    ].join("\n")
+  ].join("\n")
   };

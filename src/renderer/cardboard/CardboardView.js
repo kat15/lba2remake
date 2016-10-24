@@ -227,6 +227,7 @@ export function updateBarrelDistortion(barrel_distortion, cardboard_view,
 const SCREEN_PPI_BY_DEVICE = {
     // Device name                [ PPI, (/Regex/) ]
     'Apple iPhone 6': [326],
+    'Apple iPhone SE': [326],
     'Apple iPhone 6 Plus': [401],
     'Google Nexus 5': [445],
     'Google Nexus 6': [493],
