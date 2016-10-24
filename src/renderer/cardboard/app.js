@@ -17,7 +17,7 @@
 'use strict';
 
 /*global alert, btoa, confirm, window, document, XMLSerializer,
-  angular, Firebase, gapi, qrcode, Snap, WURFL, CARDBOARD, CONFIG, ga*/
+  angular, Firebase, gapi, qrcode, Snap, WURFL, Cardboard, CONFIG, ga*/
 
 var QR_PIXELS_PER_CELL = 3;
 

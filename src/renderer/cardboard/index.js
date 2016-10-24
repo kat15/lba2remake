@@ -1,16 +1,17 @@
 'use strict';
 
 import THREE from 'three';
-import CARDBOARD from './Cardboard';
+import Cardboard from './Cardboard';
 import OrbitControls from './OrbitControls';
-import {CardboardView, findScreenParams} from './CardboardView';
+import {
+    CardboardView,
+    findScreenParams,
+    updateBarrelDistortion
+} from './CardboardView';
 import EffectComposer from '../effects/postprocess/EffectComposer';
 import ShaderPass from '../effects/postprocess/ShaderPass';
 import CardboardStereoEffect from './CardboardStereoEffect';
 import CardboardBarrelDistortion from './CardboardBarrelDistortion';
-
-/*global alert, document, screen, window, init,
- THREE, WURFL, Firebase, screenfull, CARDBOARD, CONFIG, ga*/
 
 // meter units
 var CAMERA_HEIGHT = 0;
@@ -24,22 +25,8 @@ var element, container;
 var clock = new THREE.Clock();
 
 export function loadCalibrationScene() {
-    var device = CARDBOARD.uriToParams('https://vr.google.com/cardboard/download/?p=CgdUd2luc3VuEgRBZHJpHfT91DwlYOVQPSoQAAC0QgAAtEIAALRCAAC0QlgANQIrBz06CClcjz0K1yM8UABgAA');
+    var device = Cardboard.uriToParams('https://vr.google.com/cardboard/download/?p=CgZBZHJpNDISB0hvb3Rvb1gd9P3UPCWmm0Q9KhAAADRCAAA0QgAANEIAADRCWAA1bxIDPToICtejPQrXozxQAGAA');
     init_with_cardboard_device(device);
-}
-
-function setMessageVisible(id, is_visible) {
-    var css_visibility = is_visible ? "block" : "none";
-    document.getElementById(id).style.display = css_visibility;
-}
-
-function isFullscreen() {
-    var screen_width = Math.max(window.screen.width, window.screen.height);
-    var screen_height = Math.min(window.screen.width, window.screen.height);
-
-    return window.document.hasFocus() &&
-        (screen_width === window.innerWidth) &&
-        (screen_height === window.innerHeight);
 }
 
 function resize() {
@@ -53,10 +40,6 @@ function resize() {
     renderer.setViewport(0, 0, width, height);
 
     composer.setSize(width, height);
-
-    if (WURFL.is_mobile) {
-        setMessageVisible('message_fullscreen', !isFullscreen());
-    }
 }
 
 function animate(t) {
@@ -76,32 +59,6 @@ function setOrientationControls(e) {
     controls = new THREE.DeviceOrientationControls(camera, true);
     controls.connect();
     controls.update();
-
-    if (screenfull.enabled) {
-        // Android
-        window.addEventListener('click', function () {
-            // Must be called here because initiated by user
-            if (screenfull.isFullscreen) {
-                screen.wakelock.release();
-            } else {
-                screen.wakelock.request();
-            }
-
-            screenfull.toggle();
-        });
-
-        document.addEventListener(screenfull.raw.fullscreenchange, function () {
-            if (screenfull.isFullscreen) {
-                // TODO: moz prefix for Firefox
-                screen.orientation.lock('landscape');
-            } else {
-                screen.orientation.unlock();
-            }
-        });
-    } else {
-        // iOS
-        screen.wakelock.request();
-    }
 
     window.removeEventListener('deviceorientation', setOrientationControls, true);
 }
@@ -165,21 +122,12 @@ function init_with_cardboard_device(cardboard_device) {
     composer.addPass(new CardboardStereoEffect(cardboard_view, scene, camera));
 
     var barrel_distortion = new ShaderPass(CardboardBarrelDistortion);
-    // TODO: Consider having red background only when FOV angle fields
-    // are in focus.
     barrel_distortion.uniforms.backgroundColor.value = new THREE.Vector4(1, 0, 0, 1);
     barrel_distortion.renderToScreen = true;
     composer.addPass(barrel_distortion);
 
-    /*
-    firebase.on('value',
-        function (data) {
-            var val = data.val();
-            cardboard_view.device = CARDBOARD.uriToParams(val.params_uri);
-            CARDBOARD.updateBarrelDistortion(barrel_distortion, cardboard_view,
-                CAMERA_NEAR, CAMERA_FAR, val.show_lens_center);
-        });
-        */
+    // Do this when value is changed too
+    updateBarrelDistortion(barrel_distortion, cardboard_view, CAMERA_NEAR, CAMERA_FAR, true);
 
     window.addEventListener('resize', resize, false);
     window.setTimeout(resize, 1);

@@ -187,7 +187,7 @@ export function getProjectionMatrixPair(left_fov_angles, near, far) {
 }
 
 // Set barrel_distortion parameters given CardboardView.
-function updateBarrelDistortion(barrel_distortion, cardboard_view,
+export function updateBarrelDistortion(barrel_distortion, cardboard_view,
                                 camera_near, camera_far, show_center) {
     var coefficients = cardboard_view.device.distortion_coefficients;
     // Shader params include parts of the projection matrices needed to
