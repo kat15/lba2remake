@@ -2,6 +2,12 @@
 
 import THREE from 'three';
 import CARDBOARD from './Cardboard';
+import OrbitControls from './OrbitControls';
+import {CardboardView, findScreenParams} from './CardboardView';
+import EffectComposer from '../effects/postprocess/EffectComposer';
+import ShaderPass from '../effects/postprocess/ShaderPass';
+import CardboardStereoEffect from './CardboardStereoEffect';
+import CardboardBarrelDistortion from './CardboardBarrelDistortion';
 
 /*global alert, document, screen, window, init,
  THREE, WURFL, Firebase, screenfull, CARDBOARD, CONFIG, ga*/
@@ -113,15 +119,15 @@ function init_with_cardboard_device(cardboard_device) {
     camera.position.set(0, CAMERA_HEIGHT, 0);
     scene.add(camera);
 
-    controls = new THREE.OrbitControls(camera, element);
+    controls = new OrbitControls(camera, element);
     controls.rotateUp(Math.PI / 4);
     controls.target.set(
         camera.position.x + 0.1,
         camera.position.y,
         camera.position.z
     );
-    controls.noZoom = true;
-    controls.noPan = true;
+    controls.enableZoom = false;
+    controls.enablePan = false;
 
     window.addEventListener('deviceorientation', setOrientationControls, true);
 
@@ -130,9 +136,8 @@ function init_with_cardboard_device(cardboard_device) {
 
     // environment box with grid textures
     var box_width = 10;  // i.e. surfaces are box_width/2 from camera
-    var texture = THREE.ImageUtils.loadTexture(
-        'textures/patterns/box.png'
-    );
+    var loader = new THREE.TextureLoader();
+    var texture = loader.load('images/box.png');
     texture.wrapS = THREE.RepeatWrapping;
     texture.wrapT = THREE.RepeatWrapping;
     texture.repeat.set(box_width, box_width);
@@ -151,16 +156,14 @@ function init_with_cardboard_device(cardboard_device) {
     );
     scene.add(env_cube);
 
-    var screen_params = CARDBOARD.findScreenParams();
-    var cardboard_view = new CARDBOARD.CardboardView(
-        screen_params, cardboard_device);
+    var screen_params = findScreenParams();
+    var cardboard_view = new CardboardView(screen_params, cardboard_device);
 
-    composer = new THREE.EffectComposer(renderer);
+    composer = new EffectComposer(renderer);
 
-    composer.addPass(new THREE.CardboardStereoEffect(
-        cardboard_view, scene, camera));
+    composer.addPass(new CardboardStereoEffect(cardboard_view, scene, camera));
 
-    var barrel_distortion = new THREE.ShaderPass(THREE.CardboardBarrelDistortion);
+    var barrel_distortion = new ShaderPass(CardboardBarrelDistortion);
     // TODO: Consider having red background only when FOV angle fields
     // are in focus.
     barrel_distortion.uniforms.backgroundColor.value = new THREE.Vector4(1, 0, 0, 1);
