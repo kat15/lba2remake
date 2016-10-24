@@ -60,8 +60,6 @@ export default function CardboardStereoEffect(cardboard_view, scene, camera, ove
         var _width = readBuffer.width / 2;
         var _height = readBuffer.height;
 
-        renderer.autoClear = false;
-
         this.scene.overrideMaterial = this.overrideMaterial;
 
         if (this.clearColor) {

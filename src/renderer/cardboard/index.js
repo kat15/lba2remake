@@ -43,8 +43,8 @@ function isFullscreen() {
 }
 
 function resize() {
-    var width = container.offsetWidth;
-    var height = container.offsetHeight;
+    var width = window.innerWidth;
+    var height = window.innerHeight;
 
     camera.aspect = width / height;
     camera.updateProjectionMatrix();
@@ -108,6 +108,7 @@ function setOrientationControls(e) {
 
 function init_with_cardboard_device(cardboard_device) {
     renderer = new THREE.WebGLRenderer();
+    renderer.autoClear = false;
     element = renderer.domElement;
     container = document.getElementById('main');
     container.appendChild(element);
