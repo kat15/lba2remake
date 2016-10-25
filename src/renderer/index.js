@@ -1,6 +1,4 @@
 import THREE from 'three';
-import StereoEffect from './effects/StereoEffect';
-import EffectComposer from './effects/postprocess/EffectComposer';
 import SMAAPass from './effects/postprocess/SMAAPass';
 import RenderPass from './effects/postprocess/RenderPass';
 import setupStats from './stats';
@@ -10,7 +8,16 @@ import {
     getIsometricCamera,
     resizeIsometricCamera
 } from './cameras';
-import Cardboard from './utils/Cardboard';
+import Cardboard from './cardboard/Cardboard';
+import {
+    CardboardView,
+    findScreenParams,
+    updateBarrelDistortion
+} from './cardboard/CardboardView';
+import EffectComposer from './effects/postprocess/EffectComposer';
+import ShaderPass from './effects/postprocess/ShaderPass';
+import CardboardStereoEffect from './cardboard/CardboardStereoEffect';
+import CardboardBarrelDistortion from './cardboard/CardboardBarrelDistortion';
 import {map} from 'lodash';
 
 const PixelRatioMode = {
@@ -36,7 +43,7 @@ export function createRenderer(useVR) {
     const camera3D = get3DCamera();
     const cameraIso = getIsometricCamera();
     const resizer = setupResizer(renderer, camera3D, cameraIso);
-    let smaa = setupSMAA(renderer, pixelRatio);
+    //let smaa = setupSMAA(renderer, pixelRatio);
     const stats = setupStats(useVR);
 
     window.addEventListener('keydown', event => {
@@ -48,7 +55,7 @@ export function createRenderer(useVR) {
         if (event.code == 'KeyR') {
             pixelRatio = PixelRatio[(pixelRatio.index + 1) % PixelRatio.length];
             baseRenderer.setPixelRatio(pixelRatio.getValue());
-            smaa = setupSMAA(renderer, pixelRatio);
+            //smaa = setupSMAA(renderer, pixelRatio);
             displayRenderMode();
             window.dispatchEvent(new CustomEvent('resize'));
         }
@@ -62,7 +69,7 @@ export function createRenderer(useVR) {
             renderer.antialias = antialias;
             const camera = scene.isIsland ? camera3D : cameraIso;
             if (antialias) {
-                smaa.render(scene.threeScene, camera);
+                //smaa.render(scene.threeScene, camera);
             }
             else {
                 renderer.render(scene.threeScene, camera);
@@ -132,11 +139,33 @@ function setupResizer(renderer, camera3D, cameraIso) {
 }
 
 function setupVR(baseRenderer) {
-    const params = Cardboard.uriToParams('https://vr.google.com/cardboard/download/?p=CgdUd2luc3VuEgRBZHJpHfT91DwlYOVQPSoQAAC0QgAAtEIAALRCAAC0QlgANQIrBz06CClcjz0K1yM8UABgAA');
-    console.log(params);
-    const stereoEffect = new StereoEffect(baseRenderer, params);
-    stereoEffect.eyeSeparation = 0.006;
-    stereoEffect.focalLength = 0.0122;
-    stereoEffect.setSize(window.innerWidth, window.innerHeight);
-    return stereoEffect;
+    const cardboard_device = Cardboard.uriToParams('https://vr.google.com/cardboard/download/?p=CgZBZHJpNDISB0hvb3Rvb1gd9P3UPCWmm0Q9KhAAADRCAAA0QgAANEIAADRCWAA1bxIDPToICtejPQrXozxQAGAA');
+    const screen_params = findScreenParams();
+    const cardboard_view = new CardboardView(screen_params, cardboard_device);
+
+    const composer = new EffectComposer(baseRenderer);
+
+    const stereoEffect = new CardboardStereoEffect(cardboard_view, new THREE.Scene(), new THREE.PerspectiveCamera(), 6.0);
+    composer.addPass(stereoEffect);
+
+    var barrel_distortion = new ShaderPass(CardboardBarrelDistortion);
+    barrel_distortion.uniforms.backgroundColor.value = new THREE.Vector4(0, 0, 0, 1);
+    barrel_distortion.renderToScreen = true;
+    composer.addPass(barrel_distortion);
+
+    baseRenderer.autoClear = false;
+
+    // Do this when value is changed too
+    return {
+        render(scene, camera) {
+            camera.updateProjectionMatrix();
+            updateBarrelDistortion(barrel_distortion, cardboard_view, camera.near, camera.far, false);
+            stereoEffect.scene = scene;
+            stereoEffect.camera = camera;
+            composer.render();
+        },
+        setSize(width, height) {
+          composer.setSize(width, height);
+        }
+    }
 }

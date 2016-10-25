@@ -3,7 +3,7 @@
 import THREE from 'three';
 import {getProjectionMatrixPair} from './CardboardView';
 
-export default function CardboardStereoEffect(cardboard_view, scene, camera, overrideMaterial, clearColor, clearAlpha) {
+export default function CardboardStereoEffect(cardboard_view, scene, camera, eyeDistanceDivider, overrideMaterial, clearColor, clearAlpha) {
 
     this.cardboard_view = cardboard_view;
     this.scene = scene;
@@ -70,17 +70,14 @@ export default function CardboardStereoEffect(cardboard_view, scene, camera, ove
         }
 
         // begin StereoEffect
-        scene.updateMatrixWorld();
+        this.scene.updateMatrixWorld();
+        this.camera.updateMatrixWorld();
 
-        if (camera.parent === undefined) {
-            camera.updateMatrixWorld();
-        }
+        this.camera.matrixWorld.decompose(_position, _quaternion, _scale);
 
-        camera.matrixWorld.decompose(_position, _quaternion, _scale);
+        this.eyeSeparation = this.cardboard_view.device.inter_lens_distance / (eyeDistanceDivider || 1.0);
 
-        this.eyeSeparation = this.cardboard_view.device.inter_lens_distance;
-
-        var projections = getProjectionMatrixPair(this.cardboard_view.getLeftEyeFov(), camera.near, camera.far);
+        var projections = getProjectionMatrixPair(this.cardboard_view.getLeftEyeFov(), this.camera.near, this.camera.far);
 
         // left
         _cameraL.projectionMatrix.copy(projections.left);
@@ -103,11 +100,11 @@ export default function CardboardStereoEffect(cardboard_view, scene, camera, ove
 
         readBuffer.scissor.set(0, 0, _width, _height);
         readBuffer.viewport.set(0, 0, _width, _height);
-        renderer.render(scene, _cameraL, readBuffer, true);
+        renderer.render(this.scene, _cameraL, readBuffer, true);
 
         readBuffer.scissor.set(_width, 0, _width, _height);
         readBuffer.viewport.set(_width, 0, _width, _height);
-        renderer.render(scene, _cameraR, readBuffer, false);
+        renderer.render(this.scene, _cameraR, readBuffer, false);
 
         renderer.setViewport(0, 0, 2 * _width, _height);
 
