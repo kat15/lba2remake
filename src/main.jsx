@@ -41,11 +41,11 @@ window.onload = function() {
         createSceneManager(renderer, hero, sceneManager => {
             const controls = isMobile ? [
                 makeGyroscopeControls(hero.physics),
-                makeGamepadControls(hero.physics)
+                makeGamepadControls(hero.physics, sceneManager)
             ] : [
                 makeFirstPersonMouseControls(renderer.domElement, hero.physics),
                 makeKeyboardControls(hero.physics, sceneManager),
-                makeGamepadControls(hero.physics)
+                makeGamepadControls(hero.physics, sceneManager)
             ];
 
             document.getElementById('main').appendChild(renderer.domElement);

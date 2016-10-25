@@ -2,6 +2,7 @@
 
 import THREE from 'three';
 import type {HeroPhysics} from '../game/hero';
+import type {SceneManager} from '../game/scenes';
 import {switchMovementMode} from '../game/hero';
 import {switchStats} from '../renderer/stats';
 
@@ -9,9 +10,9 @@ const euler = new THREE.Euler();
 const PI_4 = Math.PI / 4;
 const MAX_X_ANGLE = Math.PI;// / 2.5;
 
-export function makeGamepadControls(heroPhysics: HeroPhysics) {
+export function makeGamepadControls(heroPhysics: HeroPhysics, sceneManager: SceneManager) {
     const onDpadValueChanged = dpadValueChangeHandler.bind(null, heroPhysics);
-    const onButtonPressed = buttonPressedHandler.bind(null, heroPhysics);
+    const onButtonPressed = buttonPressedHandler.bind(null, heroPhysics, sceneManager);
     window.addEventListener('dpadvaluechanged', onDpadValueChanged, false);
     window.addEventListener('gamepadbuttonpressed', onButtonPressed, false);
     return {
@@ -30,7 +31,7 @@ function dpadValueChangeHandler(heroPhysics, {detail: {x, y, name}}) {
     }
 }
 
-function buttonPressedHandler(heroPhysics, {detail: {name, isPressed}}) {
+function buttonPressedHandler(heroPhysics, sceneManager, {detail: {name, isPressed}}) {
     if (isPressed) {
         switch (name) {
             case 'leftShoulder':
@@ -40,10 +41,10 @@ function buttonPressedHandler(heroPhysics, {detail: {name, isPressed}}) {
                 rotateArroundY(heroPhysics.orientation, -PI_4);
                 break;
             case 'buttonB':
-                //GameEvents.scene.nextIsland();
+                sceneManager.next();
                 break;
             case 'buttonX':
-                //GameEvents.scene.previousIsland();
+                sceneManager.previous();
                 break;
             case 'buttonY':
                 switchMovementMode(heroPhysics);
