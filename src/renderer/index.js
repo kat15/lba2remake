@@ -139,7 +139,7 @@ function setupResizer(renderer, camera3D, cameraIso) {
 }
 
 function setupVR(baseRenderer) {
-    const cardboard_device = Cardboard.uriToParams('https://vr.google.com/cardboard/download/?p=CgZBZHJpNDISB0hvb3Rvb1gd9P3UPCWmm0Q9KhAAADRCAAA0QgAANEIAADRCWAA1bxIDPToICtejPQrXozxQAGAA');
+    const cardboard_device = Cardboard.uriToParams('http://google.com/cardboard/cfg?p=CgZBZHJpNDISB0hvb3Rvb1odCtcjPSWmm0Q9KhAAAEhCAABIQgAASEIAAEhCWAA146UbPToIexSuPs3MTL1QAGAA');
     const screen_params = findScreenParams();
     const cardboard_view = new CardboardView(screen_params, cardboard_device);
 
