@@ -17,7 +17,9 @@ import {loadZone} from './zones';
 import {
     DISPLAY_ZONES,
     DISPLAY_POINTS,
-    ONLY_LOAD_SCENERY
+    ONLY_LOAD_SCENERY,
+    ONLY_ISLANDS,
+    ONLY_ISO
 } from '../debugFlags';
 
 export type SceneManager = {
@@ -31,6 +33,15 @@ export function createSceneManager(renderer, hero, callback: Function) {
     let scene = null;
 
     loadSceneMapData(sceneMap => {
+        const isValid = index => {
+            if (ONLY_ISLANDS) {
+                return sceneMap[index].isIsland && islandSceneMapping[index].island != islandSceneMapping[scene.index].island;
+            } else if (ONLY_ISO) {
+                return !sceneMap[index].isIsland;
+            } else {
+                return true;
+            }
+        };
         callback({
             getScene: () => scene,
             goto: (index) => {
@@ -55,13 +66,19 @@ export function createSceneManager(renderer, hero, callback: Function) {
             },
             next: function() {
                 if (scene) {
-                    const next = (scene.index + 1) % sceneMap.length;
+                    let next = scene.index;
+                    do {
+                        next = (next + 1) % sceneMap.length;
+                    } while (!isValid(next));
                     this.goto(next);
                 }
             },
             previous: function() {
                 if (scene) {
-                    const previous = scene.index > 0 ? scene.index - 1 : sceneMap.length - 1;
+                    let previous = scene.index;
+                    do {
+                        previous = previous > 0 ? previous - 1 : sceneMap.length - 1;
+                    } while (!isValid(previous));
                     this.goto(previous);
                 }
             }

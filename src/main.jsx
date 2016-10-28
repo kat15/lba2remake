@@ -49,7 +49,7 @@ window.onload = function() {
             ];
 
             document.getElementById('main').appendChild(renderer.domElement);
-            sceneManager.goto(parseInt(params.scene) || 0);
+            sceneManager.goto(parseInt(params.scene) || 48);
 
             const clock = new THREE.Clock();
             function processAnimationFrame() {
