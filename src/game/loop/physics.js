@@ -5,7 +5,6 @@ import {processZones} from './zones'
 
 export function processPhysicsFrame(game, scene, time) {
     scene.sceneNode.updateMatrixWorld();
-    processActorPhysics(scene, scene.hero, time);
     each(scene.actors, actor => {
         processActorPhysics(scene, actor, time);
     });
@@ -37,7 +36,7 @@ function processActorPhysics(scene, actor, time) {
 }
 
 function processTeleports(scene) {
-    const hero = scene.hero;
+    const hero = scene.actors[0];
     const pos = hero.physics.position.clone();
     pos.y += 0.005;
     if (scene.isIsland && (pos.x < 0.01 || pos.z < 0.01 || pos.x > 1.99 || pos.z > 1.99)) {
@@ -52,7 +51,7 @@ function processTeleports(scene) {
         });
         if (sideScene) {
             scene.goto(sideScene.index, (newScene) => {
-                const newHero = newScene.hero;
+                const newHero = newScene.actors[0];
                 newHero.threeObject.quaternion.copy(hero.threeObject.quaternion);
                 newHero.threeObject.position.copy(globalPos);
                 newHero.threeObject.position.sub(newScene.sceneNode.position);
