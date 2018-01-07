@@ -24,7 +24,6 @@ import DebugData from '../ui/editor/DebugData';
 export function createSceneManager(params, game, renderer, callback: Function) {
     let scene = null;
     let sceneManager = {
-        hero: null,
         getScene: (index) => {
             if (scene && index && scene.sideScenes && index in scene.sideScenes) {
                 return scene.sideScenes[index];
@@ -60,8 +59,6 @@ export function createSceneManager(params, game, renderer, callback: Function) {
                 delete scene.sideScenes;
                 sideScene.sideScenes[scene.index] = scene;
                 scene = sideScene;
-                scene.actors[0].moveScript = scene.actorsNoHero[0].moveScript;
-                scene.actors[0].lifeScript = scene.actorsNoHero[0].lifeScript;
                 reviveActor(scene.actors[0]); // Awake twinsen
                 scene.isActive = true;
                 if (!musicSource.isPlaying) {
@@ -77,8 +74,6 @@ export function createSceneManager(params, game, renderer, callback: Function) {
                     renderer.applySceneryProps(pScene.scenery.props);
                     scene = pScene;
                     scene.isActive = true;
-                    scene.actors[0].moveScript = scene.actorsNoHero[0].moveScript;
-                    scene.actors[0].lifeScript = scene.actorsNoHero[0].lifeScript;
                     if (!musicSource.isPlaying) {
                         musicSource.load(scene.data.ambience.musicIndex, () => {
                             musicSource.play();
@@ -127,10 +122,8 @@ function loadScene(sceneManager, params, game, renderer, sceneMap, index, parent
             skyColor: [0, 0, 0],
             fogDensity: 0,
         };
-
         const loadSteps = {
             metadata: (callback) => params.editor ? loadSceneMetaData(index, callback) : callback(),
-            hero: ['metadata', (data, callback) => { loadActor(params, envInfo, sceneData.ambience, sceneData.actors[0], callback) }],
             actors: ['metadata', (data, callback) => { async.map(sceneData.actors, loadActor.bind(null, params, envInfo, sceneData.ambience), callback) }],
             points: ['metadata', (data, callback) => { async.map(sceneData.points, loadPoint, callback) }],
             zones: ['metadata', (data, callback) => { async.map(sceneData.zones, loadZone, callback) }],
@@ -165,9 +158,6 @@ function loadScene(sceneManager, params, game, renderer, sceneMap, index, parent
         }
 
         async.auto(loadSteps, function (err, data) {
-            if (!sceneManager.hero) {
-                sceneManager.hero = data.hero;
-            }
             const sceneNode = loadSceneNode(index, indexInfo, data);
             data.threeScene.add(sceneNode);
             const scene = {
@@ -179,9 +169,7 @@ function loadScene(sceneManager, params, game, renderer, sceneMap, index, parent
                 scenery: data.scenery,
                 sideScenes: data.sideScenes,
                 parentScene: data,
-                hero: sceneManager.hero,
-                actorsNoHero: data.actors,
-                actors: data.actors.slice(),
+                actors: data.actors,
                 points: data.points,
                 zones: data.zones,
                 isActive: false,
@@ -205,7 +193,6 @@ function loadScene(sceneManager, params, game, renderer, sceneMap, index, parent
                     this.threeScene.add(threeObject);
                 }
             };
-            scene.actors[0] = scene.hero;
             if (scene.isIsland) {
                 scene.section = islandSceneMapping[index].section;
             }
