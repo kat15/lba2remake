@@ -60,7 +60,9 @@ export function createSceneManager(params, game, renderer, callback: Function) {
                 delete scene.sideScenes;
                 sideScene.sideScenes[scene.index] = scene;
                 scene = sideScene;
-                //reviveActor(scene.actors[0]); // Awake twinsen
+                scene.actors[0].moveScript = scene.actorsNoHero[0].moveScript;
+                scene.actors[0].lifeScript = scene.actorsNoHero[0].lifeScript;
+                reviveActor(scene.actors[0]); // Awake twinsen
                 scene.isActive = true;
                 if (!musicSource.isPlaying) {
                     musicSource.load(scene.data.ambience.musicIndex, () => {
@@ -75,6 +77,8 @@ export function createSceneManager(params, game, renderer, callback: Function) {
                     renderer.applySceneryProps(pScene.scenery.props);
                     scene = pScene;
                     scene.isActive = true;
+                    scene.actors[0].moveScript = scene.actorsNoHero[0].moveScript;
+                    scene.actors[0].lifeScript = scene.actorsNoHero[0].lifeScript;
                     if (!musicSource.isPlaying) {
                         musicSource.load(scene.data.ambience.musicIndex, () => {
                             musicSource.play();
@@ -176,7 +180,8 @@ function loadScene(sceneManager, params, game, renderer, sceneMap, index, parent
                 sideScenes: data.sideScenes,
                 parentScene: data,
                 hero: sceneManager.hero,
-                actors: data.actors,
+                actorsNoHero: data.actors,
+                actors: data.actors.slice(),
                 points: data.points,
                 zones: data.zones,
                 isActive: false,
@@ -200,6 +205,7 @@ function loadScene(sceneManager, params, game, renderer, sceneMap, index, parent
                     this.threeScene.add(threeObject);
                 }
             };
+            scene.actors[0] = scene.hero;
             if (scene.isIsland) {
                 scene.section = islandSceneMapping[index].section;
             }
@@ -207,15 +213,15 @@ function loadScene(sceneManager, params, game, renderer, sceneMap, index, parent
             scene.variables = createSceneVariables(scene);
             scene.usedVarGames = findUsedVarGames(scene);
             // Kill twinsen if side scene
-            //if (parent) {
+            if (parent) {
                 killActor(scene.actors[0]);
-            //}
+            }
             callback(null, scene);
         });
     });
 }
 
-function loadSceneNode(index, indexInfo, data, hero) {
+function loadSceneNode(index, indexInfo, data) {
     const sceneNode = indexInfo.isIsland ? new THREE.Object3D() : new THREE.Scene();
     sceneNode.name = `scene_${index}`;
     if (indexInfo.isIsland) {
@@ -230,7 +236,6 @@ function loadSceneNode(index, indexInfo, data, hero) {
         }
     };
 
-    addToSceneNode(data.hero);
     each(data.actors, addToSceneNode);
     each(data.zones, addToSceneNode);
     each(data.points, addToSceneNode);
