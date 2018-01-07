@@ -96,15 +96,15 @@ export function LIFE_POINT_OBJ(actor) {
 }
 
 export function NUM_LITTLE_KEYS() {
-    return this.scene.hero.keys;
+    return this.scene.hero.props.keys;
 }
 
 export function NUM_GOLD_PIECES() {
-    return this.scene.hero.money;
+    return this.scene.hero.props.money;
 }
 
 export function BEHAVIOUR() {
-    return this.scene.hero.behaviour;
+    return this.scene.hero.props.behaviour;
 }
 
 export function CHAPTER() {
@@ -116,11 +116,11 @@ export function DISTANCE_3D(actor) {
 }
 
 export function MAGIC_LEVEL() {
-    return this.scene.hero.magic;
+    return this.scene.hero.props.magic;
 }
 
 export function MAGIC_POINT() {
-    return this.scene.hero.magicball.level;
+    return this.scene.hero.props.magicball.level;
 }
 
 export function USE_INVENTORY() {
@@ -132,7 +132,7 @@ export function CHOICE() {
 }
 
 export function FUEL() {
-    return this.scene.hero.fuel;
+    return this.scene.hero.props.fuel;
 }
 
 export function CARRIED_BY() {

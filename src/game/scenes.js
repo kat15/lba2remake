@@ -24,9 +24,12 @@ import DebugData from '../ui/editor/DebugData';
 export function createSceneManager(params, game, renderer, callback: Function) {
     let scene = null;
     let sceneManager = {
+        hero: null,
         getScene: (index) => {
             if (scene && index && scene.sideScenes && index in scene.sideScenes) {
-                return scene.sideScenes[index];
+                const s = scene.sideScenes[index];
+                s.hero = s.actors[0];
+                return s;
             }
             return scene;
         }
@@ -59,6 +62,7 @@ export function createSceneManager(params, game, renderer, callback: Function) {
                 delete scene.sideScenes;
                 sideScene.sideScenes[scene.index] = scene;
                 scene = sideScene;
+                scene.hero = scene.actors[0];
                 reviveActor(scene.actors[0]); // Awake twinsen
                 scene.isActive = true;
                 if (!musicSource.isPlaying) {
@@ -74,6 +78,7 @@ export function createSceneManager(params, game, renderer, callback: Function) {
                     renderer.applySceneryProps(pScene.scenery.props);
                     scene = pScene;
                     scene.isActive = true;
+                    scene.hero = scene.actors[0];
                     if (!musicSource.isPlaying) {
                         musicSource.load(scene.data.ambience.musicIndex, () => {
                             musicSource.play();
