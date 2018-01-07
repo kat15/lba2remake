@@ -41,8 +41,8 @@ export function mainGameLoop(params, game, clock, renderer, scene, controls) {
             renderer.render(scene);
             DebugData.step = false;
         }
-        if (scene.actors && scene.actors.length > 0) {
-            debugScope.hero = scene.actors[0];
+        if (scene.hero) {
+            debugScope.hero = scene.hero;
         }
         debugScope.camera = renderer.getMainCamera(scene);
     }
@@ -53,7 +53,7 @@ export function mainGameLoop(params, game, clock, renderer, scene, controls) {
 
 function updateScene(game, scene, time, step) {
     //playAmbience(game, scene, time);
-    each(scene.actors, actor => {
+    const updateSceneActor = actor => {
         if (actor.isKilled)
             return;
         updateActor(game, scene, actor, time, step);
@@ -62,7 +62,9 @@ function updateScene(game, scene, time, step) {
                 updateHero(game, actor, time);
             }
         }
-    });
+    };
+    updateSceneActor(scene.hero);
+    each(scene.actors, updateSceneActor);
 }
 
 function playAmbience(game, scene, time) {

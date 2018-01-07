@@ -21,9 +21,8 @@ export const BehaviourMode = {
 export function updateHero(game, hero, time) {
     if (hero.props.dirMode !== DirMode.MANUAL)
         return;
-    const behaviour = game.getState().hero.behaviour;
-    handleBehaviourChanges(hero, behaviour);
-    processActorMovement(game.controlsState, hero, time, behaviour);
+    handleBehaviourChanges(hero, game.controlsState.behaviour);
+    processActorMovement(game.controlsState, hero, time, game.controlsState.behaviour);
 }
 
 function handleBehaviourChanges(hero, behaviour) {
