@@ -36,7 +36,7 @@ export function MESSAGE(cmdState, id) {
 
 export function MESSAGE_OBJ(cmdState, actor, id) {
     const voiceSource = this.game.getAudioManager().getVoiceSource();
-    const hero = this.scene.actors[0];
+    const hero = this.scene.hero;
     if (!cmdState.listener) {
         const text = this.scene.data.texts[id];
         if (text.type === 9) {
@@ -134,7 +134,7 @@ export function CAM_FOLLOW() {
 }
 
 export function SET_BEHAVIOUR(value) {
-    this.game.getState().hero.behaviour = value;
+    this.scene.hero.behaviour = value;
 }
 
 export function SET_VAR_CUBE(index, value) {
@@ -178,13 +178,13 @@ export function SUICIDE() {
 }
 
 export function USE_ONE_LITTLE_KEY() {
-    this.game.getState().hero.keys++;
+    this.scene.hero.keys++;
 }
 
 export function GIVE_GOLD_PIECES(amount) {
-    this.game.getState().hero.money += amount;
-    if (this.game.getState().hero.money > 999) {
-        this.game.getState().hero.money = 999;
+    this.scene.hero.money += amount;
+    if (this.scene.hero.money > 999) {
+        this.scene.hero.money = 999;
     }
 }
 
@@ -194,7 +194,7 @@ export function INC_CHAPTER() {
 
 export function FOUND_OBJECT(cmdState, id) {
     const voiceSource = this.game.getAudioManager().getVoiceSource();
-    const hero = this.scene.actors[0];
+    const hero = this.scene.hero;
     if (!cmdState.listener) {
         hero.props.dirMode = DirMode.NO_MOVE;
         hero.props.prevEntityIndex = hero.props.entityIndex;
@@ -293,14 +293,14 @@ export function SHADOW_OBJ() {
 
 export function SET_MAGIC_LEVEL(index) {
     const magicball = setMagicBallLevel(index);
-    this.game.getState().hero.magicball = magicball;
-    this.game.getState().hero.magic = magicball.level * 20;
+    this.scene.hero.magicball = magicball;
+    this.scene.hero.magic = magicball.level * 20;
 }
 
 export function SUB_MAGIC_POINT(points) {
-    let magic = this.game.getState().hero.magic;
+    let magic = this.scene.hero.magic;
     magic -= points;
-    this.game.getState().hero.magic = (magic > 0) ? magic : 0;
+    this.scene.hero.magic = (magic > 0) ? magic : 0;
 }
 
 export function SET_LIFE_POINT_OBJ(actor, value) {
@@ -360,8 +360,8 @@ export function ECLAIR() {
 }
 
 export function INC_CLOVER_BOX() {
-    if (this.game.getState().hero.clover.boxes < 10) {
-        this.game.getState().hero.clover.boxes++;
+    if (this.scene.hero.clover.boxes < 10) {
+        this.scene.hero.clover.boxes++;
     }
 }
 
@@ -385,7 +385,7 @@ export function ASK_CHOICE(cmdState, index) {
 
 export function ASK_CHOICE_OBJ(cmdState, actor, index) {
     const voiceSource = this.game.getAudioManager().getVoiceSource();
-    const hero = this.scene.actors[0];
+    const hero = this.scene.hero;
     if (!cmdState.listener) {
         const text = this.scene.data.texts[index];
         hero.props.dirMode = DirMode.NO_MOVE;
@@ -447,16 +447,16 @@ export function CLR_HOLO_POS() {
 }
 
 export function ADD_FUEL(fuel) {
-    this.game.getState().hero.fuel += fuel;
-    if (this.game.getState().hero.fuel > 100) {
-        this.game.getState().hero.fuel = 100;
+    this.scene.hero.fuel += fuel;
+    if (this.scene.hero.fuel > 100) {
+        this.scene.hero.fuel = 100;
     }
 }
 
 export function SUB_FUEL(fuel) {
-    this.game.getState().hero.fuel -= fuel;
-    if (this.game.getState().hero.fuel < 0) {
-        this.game.getState().hero.fuel = 0;
+    this.scene.hero.fuel -= fuel;
+    if (this.scene.hero.fuel < 0) {
+        this.scene.hero.fuel = 0;
     }
 }
 
@@ -476,8 +476,8 @@ export function MESSAGE_ZOE(cmdState, id) {
 }
 
 export function FULL_POINT() {
-    this.game.getState().hero.life = 50;
-    this.game.getState().hero.magic = this.game.getState().hero.magicball.level * 20;
+    this.scene.hero.life = 50;
+    this.scene.hero.magic = this.scene.hero.magicball.level * 20;
 }
 
 export function FADE_TO_PAL() {
@@ -548,14 +548,14 @@ export function RAIN() {
 }
 
 export function GAME_OVER() {
-    this.game.getState().hero.life = 0;
-    this.game.getState().hero.clover.leafs = 0;
+    this.scene.hero.life = 0;
+    this.scene.hero.clover.leafs = 0;
 }
 
 export function THE_END() {
-    this.game.getState().hero.life = 50;
-    this.game.getState().hero.clover.leafs = 0;
-    this.game.getState().hero.magic = 80;
+    this.scene.hero.life = 50;
+    this.scene.hero.clover.leafs = 0;
+    this.scene.hero.magic = 80;
 }
 
 export function ESCALATOR() {
@@ -666,9 +666,9 @@ export function INVERSE_BETA() {
 }
 
 export function ADD_GOLD_PIECES(value) {
-    this.game.getState().hero.money += value;
-    if (this.game.getState().hero.money > 999) {
-        this.game.getState().hero.money = 999;
+    this.scene.hero.money += value;
+    if (this.scene.hero.money > 999) {
+        this.scene.hero.money = 999;
     }
 }
 

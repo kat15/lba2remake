@@ -88,14 +88,26 @@ function loadHero(scene, offset) {
     const data = new DataView(scene.buffer);
     const hero = {
         sceneIndex: scene.index,
+        index: 0,
+
+        behaviour: 0,
+        life: 50,
+        money: 100,
+        magic: 0,
+        keys: 0,
+        fuel: 0,
+        pinguin: 0,
+        clover: { boxes: 2, leafs: 0 },
+        magicball: { level: 0, strength: 0, bounce: 0 },
         entityIndex: 0,
         bodyIndex: 0,
+        animIndex: 0,
+
         pos: [
             (0x8000 - data.getInt16(offset + 4, true) + 512) / 0x4000,
             data.getInt16(offset + 2, true) / 0x4000,
             data.getInt16(offset, true) / 0x4000
         ],
-        index: 0,
         textColor: getHtmlColor(scene.palette, 12 * 16 + 12),
         angle: 0,
         speed: 5,

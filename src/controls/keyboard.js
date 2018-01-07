@@ -39,23 +39,23 @@ function keyDownHandler(params, game, sceneManager, event) {
 
         case 49:
         case 'Digit1':
-            game.getState().hero.behaviour = BehaviourMode.NORMAL;
+            game.controlsState.behaviour = BehaviourMode.NORMAL;
             break;
         case 50:
         case 'Digit2':
-            game.getState().hero.behaviour = BehaviourMode.ATHLETIC;
+            game.controlsState.behaviour = BehaviourMode.ATHLETIC;
             break;
         case 51:
         case 'Digit3':
-            game.getState().hero.behaviour = BehaviourMode.AGGRESSIVE;
+            game.controlsState.behaviour = BehaviourMode.AGGRESSIVE;
             break;
         case 52:
         case 'Digit4':
-            game.getState().hero.behaviour = BehaviourMode.DISCRETE;
+            game.controlsState.behaviour = BehaviourMode.DISCRETE;
             break;
         case 32:
         case 'Space':
-            switch (game.getState().hero.behaviour) {
+            switch (game.controlsState.behaviour) {
                 case 0:
                     game.controlsState.action = 1;
                     break;

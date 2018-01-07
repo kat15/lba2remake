@@ -30,7 +30,8 @@ export function createGame(params: Object, clock: Object, setUiState: Function, 
             jump: 0,
             fight: 0,
             crunch: 0,
-            weapon: 0
+            weapon: 0,
+            behaviour: 0
         },
         loading: function(index: number) {
             _isPaused = true;
