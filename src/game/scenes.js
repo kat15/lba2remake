@@ -24,6 +24,7 @@ import DebugData from '../ui/editor/DebugData';
 export function createSceneManager(params, game, renderer, callback: Function) {
     let scene = null;
     let sceneManager = {
+        hero: null,
         getScene: (index) => {
             if (scene && index && scene.sideScenes && index in scene.sideScenes) {
                 return scene.sideScenes[index];
@@ -59,7 +60,7 @@ export function createSceneManager(params, game, renderer, callback: Function) {
                 delete scene.sideScenes;
                 sideScene.sideScenes[scene.index] = scene;
                 scene = sideScene;
-                reviveActor(scene.actors[0]); // Awake twinsen
+                //reviveActor(scene.actors[0]); // Awake twinsen
                 scene.isActive = true;
                 if (!musicSource.isPlaying) {
                     musicSource.load(scene.data.ambience.musicIndex, () => {
@@ -122,8 +123,10 @@ function loadScene(sceneManager, params, game, renderer, sceneMap, index, parent
             skyColor: [0, 0, 0],
             fogDensity: 0,
         };
+
         const loadSteps = {
             metadata: (callback) => params.editor ? loadSceneMetaData(index, callback) : callback(),
+            hero: ['metadata', (data, callback) => { loadActor(params, envInfo, sceneData.ambience, sceneData.actors[0], callback) }],
             actors: ['metadata', (data, callback) => { async.map(sceneData.actors, loadActor.bind(null, params, envInfo, sceneData.ambience), callback) }],
             points: ['metadata', (data, callback) => { async.map(sceneData.points, loadPoint, callback) }],
             zones: ['metadata', (data, callback) => { async.map(sceneData.zones, loadZone, callback) }],
@@ -158,6 +161,9 @@ function loadScene(sceneManager, params, game, renderer, sceneMap, index, parent
         }
 
         async.auto(loadSteps, function (err, data) {
+            if (!sceneManager.hero) {
+                sceneManager.hero = data.hero;
+            }
             const sceneNode = loadSceneNode(index, indexInfo, data);
             data.threeScene.add(sceneNode);
             const scene = {
@@ -169,6 +175,7 @@ function loadScene(sceneManager, params, game, renderer, sceneMap, index, parent
                 scenery: data.scenery,
                 sideScenes: data.sideScenes,
                 parentScene: data,
+                hero: sceneManager.hero,
                 actors: data.actors,
                 points: data.points,
                 zones: data.zones,
@@ -200,15 +207,15 @@ function loadScene(sceneManager, params, game, renderer, sceneMap, index, parent
             scene.variables = createSceneVariables(scene);
             scene.usedVarGames = findUsedVarGames(scene);
             // Kill twinsen if side scene
-            if (parent) {
+            //if (parent) {
                 killActor(scene.actors[0]);
-            }
+            //}
             callback(null, scene);
         });
     });
 }
 
-function loadSceneNode(index, indexInfo, data) {
+function loadSceneNode(index, indexInfo, data, hero) {
     const sceneNode = indexInfo.isIsland ? new THREE.Object3D() : new THREE.Scene();
     sceneNode.name = `scene_${index}`;
     if (indexInfo.isIsland) {
@@ -223,6 +230,7 @@ function loadSceneNode(index, indexInfo, data) {
         }
     };
 
+    addToSceneNode(data.hero);
     each(data.actors, addToSceneNode);
     each(data.zones, addToSceneNode);
     each(data.points, addToSceneNode);
