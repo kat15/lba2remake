@@ -17,20 +17,48 @@ import {loadActor} from './actors';
 import {loadPoint} from './points';
 import {loadZone} from './zones';
 import {loadScripts, killActor, reviveActor} from '../scripting';
+import {compileScripts} from '../scripting/compiler'
 import {initCameraMovement} from './loop/cameras';
 import {initSceneDebugData, loadSceneMetaData} from '../ui/editor/DebugData';
 import DebugData from '../ui/editor/DebugData';
 
 export function createSceneManager(params, game, renderer, callback: Function) {
     let scene = null;
+    const setHeroPointer = (scene) => {
+        if (!scene) {
+            return;
+        }
+        if (!scene.hero) {
+            scene.hero = Object.assign({}, scene.actorsNoHero[0]);
+        } else {
+            const heroTemplate = scene.actorsNoHero[0];
+            //scene.hero.props.pos = heroTemplate.props.pos.slice();
+            scene.hero.props.lifeScriptSize = heroTemplate.props.lifeScriptSize;
+            scene.hero.props.moveScriptSize = heroTemplate.props.moveScriptSize;
+            if (heroTemplate.props.lifeScript) {
+                scene.hero.props.lifeScript = Object.assign({}, heroTemplate.props.lifeScript);
+            } else {
+                scene.hero.props.lifeScript = null;
+            }
+            if (heroTemplate.props.moveScript) {
+                scene.hero.props.moveScript = Object.assign({}, heroTemplate.props.moveScript);
+            } else {
+                scene.hero.props.moveScript = null;
+            }
+        }
+        loadScripts(params, game, scene);
+        scene.actors[0] = scene.hero;
+    };
+
     let sceneManager = {
         hero: null,
         getScene: (index) => {
             if (scene && index && scene.sideScenes && index in scene.sideScenes) {
                 const s = scene.sideScenes[index];
-                s.hero = s.actors[0];
+                setHeroPointer(s);
                 return s;
             }
+            setHeroPointer(scene);
             return scene;
         }
     };
@@ -62,7 +90,7 @@ export function createSceneManager(params, game, renderer, callback: Function) {
                 delete scene.sideScenes;
                 sideScene.sideScenes[scene.index] = scene;
                 scene = sideScene;
-                scene.hero = scene.actors[0];
+                setHeroPointer(scene);
                 reviveActor(scene.actors[0]); // Awake twinsen
                 scene.isActive = true;
                 if (!musicSource.isPlaying) {
@@ -78,7 +106,7 @@ export function createSceneManager(params, game, renderer, callback: Function) {
                     renderer.applySceneryProps(pScene.scenery.props);
                     scene = pScene;
                     scene.isActive = true;
-                    scene.hero = scene.actors[0];
+                    setHeroPointer(scene);
                     if (!musicSource.isPlaying) {
                         musicSource.load(scene.data.ambience.musicIndex, () => {
                             musicSource.play();
@@ -175,6 +203,7 @@ function loadScene(sceneManager, params, game, renderer, sceneMap, index, parent
                 sideScenes: data.sideScenes,
                 parentScene: data,
                 actors: data.actors,
+                actorsNoHero: data.actors.slice(),
                 points: data.points,
                 zones: data.zones,
                 isActive: false,
