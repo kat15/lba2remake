@@ -24,32 +24,6 @@ import DebugData from '../ui/editor/DebugData';
 
 export function createSceneManager(params, game, renderer, callback: Function) {
     let scene = null;
-    const setHeroPointer = (scene) => {
-        if (!scene) {
-            return;
-        }
-        if (!scene.hero) {
-            scene.hero = Object.assign({}, scene.actorsNoHero[0]);
-        } else {
-            const heroTemplate = scene.actorsNoHero[0];
-            //scene.hero.props.pos = heroTemplate.props.pos.slice();
-            scene.hero.props.lifeScriptSize = heroTemplate.props.lifeScriptSize;
-            scene.hero.props.moveScriptSize = heroTemplate.props.moveScriptSize;
-            if (heroTemplate.props.lifeScript) {
-                scene.hero.props.lifeScript = Object.assign({}, heroTemplate.props.lifeScript);
-            } else {
-                scene.hero.props.lifeScript = null;
-            }
-            if (heroTemplate.props.moveScript) {
-                scene.hero.props.moveScript = Object.assign({}, heroTemplate.props.moveScript);
-            } else {
-                scene.hero.props.moveScript = null;
-            }
-        }
-        loadScripts(params, game, scene);
-        scene.actors[0] = scene.hero;
-    };
-
     let sceneManager = {
         hero: null,
         getScene: (index) => {
@@ -141,6 +115,31 @@ export function createSceneManager(params, game, renderer, callback: Function) {
     return sceneManager;
 }
 
+function setHeroPointer(scene) {
+    if (!scene) {
+        return;
+    }
+    if (!scene.hero) {
+        scene.hero = Object.assign({}, scene.actorsNoHero[0]);
+    } else {
+        const heroTemplate = scene.actorsNoHero[0];
+        //scene.hero.props.pos = heroTemplate.props.pos.slice();
+        scene.hero.props.lifeScriptSize = heroTemplate.props.lifeScriptSize;
+        scene.hero.props.moveScriptSize = heroTemplate.props.moveScriptSize;
+        if (heroTemplate.props.lifeScript) {
+            scene.hero.props.lifeScript = Object.assign({}, heroTemplate.props.lifeScript);
+        } else {
+            scene.hero.props.lifeScript = null;
+        }
+        if (heroTemplate.props.moveScript) {
+            scene.hero.props.moveScript = Object.assign({}, heroTemplate.props.moveScript);
+        } else {
+            scene.hero.props.moveScript = null;
+        }
+    }
+    scene.actors[0] = scene.hero;
+}
+
 function loadScene(sceneManager, params, game, renderer, sceneMap, index, parent, callback) {
     loadSceneData(index, sceneData => {
         const indexInfo = sceneMap[index];
@@ -230,6 +229,7 @@ function loadScene(sceneManager, params, game, renderer, sceneMap, index, parent
             if (scene.isIsland) {
                 scene.section = islandSceneMapping[index].section;
             }
+            setHeroPointer(scene) ;
             loadScripts(params, game, scene);
             scene.variables = createSceneVariables(scene);
             scene.usedVarGames = findUsedVarGames(scene);
