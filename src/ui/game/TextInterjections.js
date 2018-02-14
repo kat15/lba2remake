@@ -1,12 +1,12 @@
 import React from 'react';
 import {extend, map} from 'lodash';
-import THREE from 'three';
+import * as THREE from 'three';
 
 const baseStyle = {
     position: 'absolute',
     fontFamily: 'LBA',
     textShadow: 'black 4px 4px',
-    fontSize: '3em',
+    fontSize: '2.5em',
     transform: 'translate(-50%, -50%)'
 };
 

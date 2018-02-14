@@ -55,11 +55,13 @@ function getMusicSource(state, context, data) {
         source.bufferSource.start();
     };
     source.stop = () => {
-        source.bufferSource.stop();
-        source.isPlaying = false;
+        if (source.bufferSource) {
+            source.bufferSource.stop();
+            source.isPlaying = false;
+        }
     };
     source.load = (index, callback) => {
-        if (index == -1 || source.currentIndex == index) {
+        if (index == -1 || source.currentIndex == index && source.isPlaying) {
             return;
         }
         if (source.isPlaying) {
@@ -122,7 +124,9 @@ function getSoundFxSource(state, context, data) {
         source.bufferSource.start();
     };
     source.stop = () => {
-        source.bufferSource.stop();
+        if (source.bufferSource) {
+            source.bufferSource.stop();
+        }
         source.isPlaying = false;
     };
     source.load = (index, callback) => {
@@ -193,7 +197,7 @@ function getVoiceSource(state, context, data) {
         source.bufferSource.start();
     };
     source.stop = () => {
-        if (source.isPlaying) {
+        if (source.bufferSource) {
             source.bufferSource.stop();
         }
         source.isPlaying = false;

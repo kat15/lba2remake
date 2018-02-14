@@ -1,5 +1,5 @@
 // @flow
-import THREE from 'three';
+import * as THREE from 'three';
 import async from 'async';
 
 import {createState} from './state';
@@ -11,7 +11,7 @@ export function createGame(params: Object, clock: Object, setUiState: Function, 
     let _isPaused = false;
     let _isLoading = false;
 
-    const _state = createState();
+    let _state = createState();
     const _audio = createAudioManager(_state);
 
     return {
@@ -32,6 +32,19 @@ export function createGame(params: Object, clock: Object, setUiState: Function, 
             crunch: 0,
             weapon: 0,
             behaviour: 0
+        },
+        resetState: function() {
+            _state = createState();
+            this.resetControlsState();
+        },
+        resetControlsState: function() {
+            this.controlsState.heroSpeed = 0;
+            this.controlsState.heroRotationSpeed = 0;
+            this.controlsState.action = 0;
+            this.controlsState.jump = 0;
+            this.controlsState.fight = 0;
+            this.controlsState.crunch = 0;
+            this.controlsState.weapon = 0;
         },
         loading: function(index: number) {
             _isPaused = true;
@@ -64,20 +77,28 @@ export function createGame(params: Object, clock: Object, setUiState: Function, 
                 clock.start();
             }
         },
-        preload: function() {
+        preload: function(callback: Function) {
             const that = this;
             async.auto({
+                loading: preloadFileAsync('images/30_screen_loading.png'),
+                menu: preloadFileAsync('images/2_screen_menubg_extended.png'),
+                ribbon: preloadFileAsync('images/11_sprite_lba2.png'),
                 ress: preloadFileAsync('data/RESS.HQR'),
                 text: loadHqrAsync('TEXT.HQR'),
                 voxgame: preloadFileAsync(`data/VOX/${_state.config.languageCode}_GAM_AAC.VOX`),
                 vox000: preloadFileAsync(`data/VOX/${_state.config.languageCode}_000_AAC.VOX`),
                 muslogo: preloadFileAsync('data/MUSIC/LOGADPCM.mp4'),
                 mus15: preloadFileAsync('data/MUSIC/JADPCM15.mp4'),
-                mus16: preloadFileAsync('data/MUSIC/JADPCM16.mp4')
+                mus16: preloadFileAsync('data/MUSIC/JADPCM16.mp4'),
+                musmenu: preloadFileAsync('data/MUSIC/Track6.mp4')
             }, (error, files) => {
                 const gameTexts = {textIndex: 4, texts: null};
                 loadTexts(gameTexts, files.text);
                 that.texts = gameTexts.texts;
+                const menuTexts = {textIndex: 0, texts: null};
+                loadTexts(menuTexts, files.text);
+                that.menuTexts = menuTexts.texts;
+                callback();
             });
         }
     };

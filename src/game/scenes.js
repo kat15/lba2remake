@@ -1,5 +1,5 @@
 import async from 'async';
-import THREE from 'three';
+import * as THREE from 'three';
 import {
     map,
     filter,
@@ -38,8 +38,8 @@ export function createSceneManager(params, game, renderer, callback: Function) {
     };
 
     loadSceneMapData(sceneMap => {
-        sceneManager.goto = function(index, pCallback = noop) {
-            if ((scene && index === scene.index) || game.isLoading())
+        sceneManager.goto = function(index, pCallback = noop, force = false) {
+            if ((!force && scene && index === scene.index) || game.isLoading())
                 return;
 
             ga('set', 'page', `/scene/${index}`);
