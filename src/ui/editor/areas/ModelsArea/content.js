@@ -5,8 +5,10 @@ import FrameListener from '../../../utils/FrameListener';
 import {Status} from './status';
 import DebugData, {getObjectName} from '../../DebugData';
 import {loadModel} from '../../../../model';
+import * as THREE from 'three';
 
 export default class Model extends FrameListener {
+
     constructor(props) {
         super(props);
         let that = this;
@@ -20,10 +22,11 @@ export default class Model extends FrameListener {
         const actor = scene.actors[0];
         const actorProps = actor.props;
         const params = this.props.params;
+        this.updateModel = this.updateModel.bind(this);
         loadModel(params, actorProps.entityIndex, actorProps.bodyIndex, actorProps.animIndex, actor.animState, envInfo, ambience, (model) => {
             if (model !== null) {
                 that.model = model;
-                console.log(model);
+                this.updateModel();
             }
         });
     }
@@ -32,30 +35,45 @@ export default class Model extends FrameListener {
         this.updateCanvas();
     }
 
+    updateModel() {
+        let renderer = new THREE.WebGLRenderer({canvas: this.canvas});
+        renderer.setPixelRatio(window.devicePixelRatio);
+        renderer.setSize(window.innerWidth, window.innerHeight);
+
+        let scene = new THREE.Scene();
+
+        scene.add(this.model.mesh);
+
+        let camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 2000);
+        camera.position.x = Math.cos(0) * 800;
+        camera.position.z = Math.sin(0) * 800;
+        camera.lookAt(scene.position);
+
+        let ambientLight = new THREE.AmbientLight(0xcccccc, 0.4);
+        scene.add(ambientLight);
+
+        let pointLight = new THREE.PointLight(0xffffff, 0.8);
+        camera.add(pointLight);
+        scene.add(camera);
+
+        renderer.render(scene, camera);
+        this.camera = camera;
+        this.renderer = renderer;
+        this.scene = scene;
+    }
+
     render() {
         return <div>
-            <canvas ref="canvas" width={300} height={100}/>
+            <canvas width={300} height={100} ref={(canvas) => {
+                this.canvas = canvas;
+            }}/>
         </div>;
     }
 
     updateCanvas() {
-        const ctx = this.refs.canvas.getContext('2d');
-        ctx.fillRect(0, 0, 100, 100);
+        this.renderer.render( this.scene, this.camera );
     }
 
     frame() {
-        if (this.props.sharedState.status === Status.NORMAL) {
-            const slots = this.props.sharedState.slots;
-            const {macros, expressions} = slots;
-            const values = map(expressions, expr => {
-                try {
-                    return {value: execute(expr.program, [DebugData.scope], macros)};
-                }
-                catch (error) {
-                    return {error};
-                }
-            });
-            this.setState({values});
-        }
     }
 }
