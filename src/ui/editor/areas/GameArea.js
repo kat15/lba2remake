@@ -6,6 +6,7 @@ import DebugHUDArea from './DebugHUDArea';
 import {SceneOutliner, Locator} from './OutlinerArea';
 import {GameMenu} from "./GameArea/menu";
 import {Orientation, Type} from '../layout';
+import ModelsArea from "./ModelsArea";
 
 const GameArea = {
     id: 'game',
@@ -31,6 +32,7 @@ const GameArea = {
     toolAreas: [
         ScriptEditorArea,
         DebugHUDArea,
+        ModelsArea,
         SceneOutliner,
         Locator
     ],
